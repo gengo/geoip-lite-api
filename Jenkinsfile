@@ -20,7 +20,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh "docker build -t gcr.io/gengo-internal/${env.APPLICATION}:latest"
+                sh "docker build . -t gcr.io/gengo-internal/${env.APPLICATION}:latest"
                 sh "docker tag gcr.io/gengo-internal/${env.APPLICATION}:latest gcr.io/gengo-internal/${env.APPLICATION}:${env.GIT_COMMIT}"
             }
             post {

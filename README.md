@@ -1,7 +1,7 @@
 ## GeoIP lite API
 
 API for MaxMind's [GeoLite2](https://dev.maxmind.com/geoip/geoip2/geolite2/) database.
-This app retrieves the database from an s3 bucket and runs uwsgi to host the api built using [hug](https://www.hug.rest/)
+This downloads the database from an s3 bucket and runs uwsgi to host the API built using [hug](https://www.hug.rest/)
 
 ### To Run
 ```sh

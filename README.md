@@ -18,6 +18,7 @@ docker run -p 10000:10000 -eAWS_ACCESS_KEY_ID='*****' -eAWS_SECRET_ACCESS_KEY='*
 ### Development
 Run
 ```sh
+pip install -r requirements.txt
 hug -f api.py -p 10000
 ```
 Note: You must have the GeoLite2-City maxmind database in ```/srv``` directory.

@@ -1,2 +1,4 @@
 hug==2.5.5
 maxminddb==1.4.1
+uwsgi==2.0.18
+awscli==1.16.180

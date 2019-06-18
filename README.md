@@ -4,11 +4,15 @@ API for MaxMind's [GeoLite2](https://dev.maxmind.com/geoip/geoip2/geolite2/) dat
 This downloads the database from an s3 bucket and runs uwsgi to host the API built using [hug](https://www.hug.rest/)
 
 ### To Run
+Set ```AWS_ACCESS_KEY_ID``` and ```AWS_SECRET_ACCESS_KEY``` in your environment variables.
 ```sh
 cd geoip-lite-api
-```
-```sh
+pip install -r requirements.txt
+# cli command
 ./run.sh [s3-path-for-geolite2]
+# or using docker
+docker build . -t gcr.io/gengo-internal/geoip-lite-api:latest
+docker run -p 10000:10000 -eAWS_ACCESS_KEY_ID='*****' -eAWS_SECRET_ACCESS_KEY='****'  -ti gcr.io/gengo-internal/geoip-lite-api:latest s3://bucket-name/GeoLite2-City.mmdb
 ```
 
 ### Development

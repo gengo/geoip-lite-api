@@ -57,11 +57,10 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                build job: 'classic-projects/01_goship_deployer',
+                build job: 'tools/goship-deployer',
                 parameters: [
-                    string(name: 'APP', value: "${env.APPLICATION}"),
-                    string(name: 'GIT_COMMIT', value: "${env.GIT_COMMIT}"),
-                    string(name: 'NAMESPACE', value: "default")
+                    string(name: 'APP_NAME', value: "${env.APPLICATION}"),
+                    string(name: 'BRANCH', value: "${env.GIT_COMMIT}"),
                 ]
             }
             post {

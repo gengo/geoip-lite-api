@@ -1,4 +1,4 @@
-FROM python:3.7.3-alpine3.9 AS base
+FROM python:alpine AS base
 MAINTAINER Gengo Dev Team
 RUN apk add build-base linux-headers pcre-dev
 RUN pip install uwsgi==2.0.18 && pip install awscli

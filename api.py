@@ -104,14 +104,11 @@ class GeoIP:
 
 logging.info('Reading maxmind DB from {}'.format('path'))
 start = time.process_time()
+reader = None
 
 if GEOIP_SERVICE == 1:
     reader = maxminddb.open_database('/srv/GeoLite2-City.mmdb')
 
 logging.info('Done. Took {}'.format(time.process_time() - start))
 route = hug.route.API(__name__)
-
-if GEOIP_SERVICE == 1:
-    route.object('/')(GeoIP(reader))
-else:
-    route.object('/')(GeoIP(''))
+route.object('/')(GeoIP(reader))

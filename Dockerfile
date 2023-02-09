@@ -10,7 +10,7 @@ RUN pip install --upgrade pip
 RUN adduser -u ${uid} --disabled-password --disabled-login --gecos python python
 USER python
 
-RUN pip install uwsgi==2.0.21 awscli
+RUN pip install --no-warn-script-location uwsgi==2.0.21 awscli
 
 FROM base as app
 WORKDIR /srv

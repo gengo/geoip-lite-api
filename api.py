@@ -34,7 +34,7 @@ result = {
 class GeoIP:
     @hug.object.get(urls="/geoip/{ipv4}")
     def get(self, ipv4: str):
-        if GEOIP_SERVICE == NON_PAID_VERSION:
+        if GEOIP_SERVICE == PAID_VERSION:
             return self._get_geoip2_service(ipv4)
         else:
             return self._get_geoip_service(ipv4)

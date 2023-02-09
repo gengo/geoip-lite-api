@@ -75,10 +75,7 @@ class GeoIP:
         return result
 
     def _get_geoip2_service(self, ipv4: str):
-        client = geoip2.webservice.Client(
-            GEOIP2_USER_ID,
-            GEOIP2_LICENSE_KEY,
-        )
+        client = geoip2.webservice.Client(GEOIP2_USER_ID, GEOIP2_LICENSE_KEY)
         try:
             response = client.insights(ipv4)
             result["ip"] = ipv4

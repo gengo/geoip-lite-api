@@ -3,8 +3,8 @@ MAINTAINER Gengo Dev Team
 
 ARG uid=1000
 
-RUN apt-get -y update
-RUN apt-get -y install build-essential
+RUN RUN apt-get -y update && apt-get -y install build-essential
+
 RUN pip install --upgrade pip
 
 RUN adduser -u ${uid} --disabled-password --disabled-login --gecos python python

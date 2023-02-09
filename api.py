@@ -103,7 +103,7 @@ class GeoIP:
             raise falcon.HTTPBadRequest("message", "Invalid IPv4 address")
         return result
 
-    def _escape_text(self, text: None):
+    def _escape_text(self, text: str=None):
         return html.escape(text, quote=True) if text else ""
 
 

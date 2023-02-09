@@ -1,4 +1,4 @@
-FROM python:alpine3.15 AS base
+FROM python:3.8.5-slim-buster AS base
 MAINTAINER Gengo Dev Team
 RUN apk add build-base linux-headers pcre-dev
 RUN pip install uwsgi==2.0.21 && pip install awscli

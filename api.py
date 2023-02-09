@@ -11,7 +11,9 @@ from geoip2.errors import GeoIP2Error
 
 GEOIP2_USER_ID = os.getenv("GEOIP2_USER_ID", "")
 GEOIP2_LICENSE_KEY = os.getenv("GEOIP2_LICENSE_KEY", "")
-GEOIP_SERVICE = 2
+NON_PAID_VERSION = 1
+PAID_VERSION = 2
+GEOIP_SERVICE = PAID_VERSION
 
 result = {
     "ip": "",
@@ -32,10 +34,10 @@ result = {
 class GeoIP:
     @hug.object.get(urls="/geoip/{ipv4}")
     def get(self, ipv4: str):
-        if GEOIP_SERVICE == 1:
-            return self._get_geoip_service(ipv4)
-        else:
+        if GEOIP_SERVICE == NON_PAID_VERSION:
             return self._get_geoip2_service(ipv4)
+        else:
+            return self._get_geoip_service(ipv4)
 
     def _get_geoip_service(self, ipv4: str):
         reader = maxminddb.open_database("/srv/GeoLite2-City.mmdb")
@@ -80,9 +82,7 @@ class GeoIP:
         try:
             response = client.insights(ipv4)
             result["ip"] = ipv4
-            result["region_code"] = self._escape_text(
-                response.subdivisions[0].iso_code
-            )
+            result["region_code"] = self._escape_text(response.subdivisions[0].iso_code)
             result["region_name"] = self._escape_text(
                 response.subdivisions[0].names["en"]
             )
@@ -92,9 +92,7 @@ class GeoIP:
             )
             result["zip"] = self._escape_text(response.postal.code)
             result["continent_code"] = self._escape_text(response.continent.code)
-            result["continent_name"] = self._escape_text(
-                response.continent.names["en"]
-            )
+            result["continent_name"] = self._escape_text(response.continent.names["en"])
             result["country_code"] = self._escape_text(response.country.iso_code)
             result["country_name"] = self._escape_text(response.country.names["en"])
             result["latitude"] = response.location.latitude

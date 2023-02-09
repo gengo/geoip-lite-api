@@ -1,8 +1,6 @@
 FROM python:3.8.5-slim-buster
 MAINTAINER Gengo Dev Team
 
-ARG uid=1000
-
 RUN apt-get -y update && apt-get -y install build-essential
 
 WORKDIR /srv

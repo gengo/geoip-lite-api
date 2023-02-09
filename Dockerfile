@@ -1,11 +1,20 @@
-FROM python:alpine3.15 AS base
+FROM python:3.8.5-slim-buster AS base
 MAINTAINER Gengo Dev Team
-RUN apk add build-base linux-headers pcre-dev
-RUN pip install uwsgi==2.0.18 && pip install awscli
+
+ARG uid=1000
+
+RUN apt-get -y update && apt-get -y install build-essential
+
+RUN pip install --upgrade pip
+
+RUN adduser -u ${uid} --disabled-password --disabled-login --gecos python python
+USER python
+
+RUN pip install --no-warn-script-location uwsgi==2.0.21 awscli
 
 FROM base as app
 WORKDIR /srv
 COPY . /srv
 
-RUN pip install -r requirements.txt
+RUN pip install --no-warn-script-location -r requirements.txt
 ENTRYPOINT ["/bin/sh", "run.sh"]

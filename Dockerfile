@@ -1,4 +1,4 @@
-FROM python:3.8.5-slim-buster AS base
+FROM python:3.8.5-slim-buster
 MAINTAINER Gengo Dev Team
 
 ARG uid=1000
@@ -10,9 +10,6 @@ RUN pip install --upgrade pip
 RUN adduser -u ${uid} --disabled-password --disabled-login --gecos python python
 USER python
 
-RUN pip install --no-warn-script-location uwsgi==2.0.21 awscli
-
-FROM base as app
 WORKDIR /srv
 COPY . /srv
 

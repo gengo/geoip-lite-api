@@ -3,7 +3,7 @@ MAINTAINER Gengo Dev Team
 
 ARG uid=1000
 
-RUN RUN apt-get -y update && apt-get -y install build-essential
+RUN apt-get -y update && apt-get -y install build-essential
 
 RUN pip install --upgrade pip
 

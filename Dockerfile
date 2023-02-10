@@ -13,6 +13,6 @@ USER python
 WORKDIR /srv
 COPY . /srv
 
-RUN pip install --no-warn-script-location -r requirements.txt
 ENV PATH "/home/python/.local/bin:$PATH"
+RUN pip install -r requirements.txt
 ENTRYPOINT ["/bin/sh", "run.sh"]

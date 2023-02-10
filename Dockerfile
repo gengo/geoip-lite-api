@@ -14,4 +14,5 @@ WORKDIR /srv
 COPY . /srv
 
 RUN pip install --no-warn-script-location -r requirements.txt
+ENV PATH "/home/python/.local/bin:$PATH"
 ENTRYPOINT ["/bin/sh", "run.sh"]

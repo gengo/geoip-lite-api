@@ -1,5 +1,5 @@
-FROM python:3.8.5-slim-buster
-MAINTAINER Gengo Dev Team
+FROM python:3.13-slim-bookworm
+LABEL org.opencontainers.image.authors="Gengo Dev Team"
 
 ARG uid=1000
 
@@ -14,6 +14,6 @@ USER python
 WORKDIR /srv
 COPY . /srv
 
-ENV PATH "/home/python/.local/bin:$PATH"
+ENV PATH="/home/python/.local/bin:$PATH"
 RUN pip install -r requirements.txt
 ENTRYPOINT ["/bin/sh", "run.sh"]

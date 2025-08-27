@@ -1,0 +1,119 @@
+trigger:
+  branches:
+    include:
+      - main
+      - azure-pipeline
+
+pr: none
+
+variables:
+- group: GitHub-Credentials
+- group: Teams_Webhook
+
+- name: APPLICATION
+  value: 'geoip-lite-api'
+
+- name: GIT_BRANCH
+  value: $(Build.SourceBranchName)
+
+- name: GIT_COMMIT
+  value: $(Build.SourceVersion)
+
+stages:
+- stage: Start
+  displayName: "Start"
+  jobs:
+    - job: NotifyStart
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        - script: |
+            GIT_COMMIT=$(git rev-parse HEAD)
+            echo "##vso[task.setvariable variable=git_commit]$GIT_COMMIT"
+            echo "Git commit: $GIT_COMMIT"
+          displayName: "Get Git Commit"
+        - script: |
+            curl -H 'Content-Type: application/json' -d '{
+              "text": "🚀 Pipeline started for **$(APPLICATION)** on branch `$(Build.SourceBranchName)` (commit `$(git_commit)`)\n🔗 [View pipeline run]($(Build.BuildUri))"
+            }' $(TEAMS_WEBHOOK)
+          displayName: "Notify Teams - Pipeline Started"
+
+- stage: BuildAndPush
+  displayName: "Build and Push"
+  dependsOn: Start
+  jobs:
+    - job: BuildPushJob
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        - script: |
+            set -e
+            docker build . -t gengoacr.azurecr.io/$(APPLICATION):latest
+            docker tag gengoacr.azurecr.io/$(APPLICATION):latest gengoacr.azurecr.io/$(APPLICATION):$(git_commit)
+          displayName: "Build and Tag Docker Images"
+        - task: AzureCLI@2
+          inputs:
+            azureSubscription: "acr-connection"
+            scriptType: "bash"
+            scriptLocation: "inlineScript"
+            inlineScript: |
+              az acr login --name gengoacr
+          displayName: "Azure Login to ACR"
+        - script: |
+            docker push gengoacr.azurecr.io/$(APPLICATION):$(git_commit)
+            docker push gengoacr.azurecr.io/$(APPLICATION):latest
+          displayName: "Push Docker Images"
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: '$(System.DefaultWorkingDirectory)'
+            ArtifactName: 'drop'
+            publishLocation: 'Container'
+        - script: |
+            curl -H 'Content-Type: application/json' -d '{
+              "text": "❌ Build for *$(APPLICATION)* failed at commit *$(git_commit)*.\n🔍 [View logs]($(Build.BuildUri))"
+            }' $(TEAMS_WEBHOOK)
+          condition: failed()
+          displayName: "Notify Teams - Build Failed"
+
+- stage: Deploy
+  displayName: "Deploy"
+  dependsOn: BuildAndPush
+  jobs:
+    - job: DeployJob
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        - script: |
+            echo "Deploying revision: $(git_commit)"
+            curl -X POST http://goship.staging.gengo.com/deploy_handler \
+              -H "Cookie: goship=$(GOSHIP_COOKIE)" \
+              -H "Accept: application/json, text/javascript, */*; q=0.01" \
+              -H "Connection: keep-alive" -H "Cache-Control: no-cache" \
+              --compressed \
+              --data "project=$(APPLICATION)&from_revision=unknown&to_revision=$(git_commit)&environment=k8staging"
+          displayName: "Deploy via Goship"
+        - script: |
+            curl -H 'Content-Type: application/json' -d '{
+              "text": "✅ **$(APPLICATION)** deployed successfully with commit `$(git_commit)` to environment `staging`.\n🔗 [View pipeline run]($(Build.BuildUri))"
+            }' $(TEAMS_WEBHOOK)
+          displayName: "Notify Teams - Deployment Complete"
+        - script: |
+            curl -H 'Content-Type: application/json' -d '{
+              "text": "❌ **$(APPLICATION)** deployment failed at commit `$(git_commit)` to environment `staging`.\n🔍 Please check the pipeline logs.\n🔗 [View pipeline run]($(Build.BuildUri))"
+            }' $(TEAMS_WEBHOOK)
+          condition: failed()
+
+- stage: Finish
+  displayName: "Finish"
+  dependsOn: Deploy
+  condition: succeeded()
+  jobs:
+    - job: FinishJob
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+        - script: |
+            curl -H 'Content-Type: application/json' -d '{
+              "text": "🎉 <b>$(APPLICATION)</b> pipeline finished successfully! [View pipeline run]($(Build.BuildUri))"
+            }' $(TEAMS_WEBHOOK)
+          displayName: "Notify Teams - Pipeline Finished"
